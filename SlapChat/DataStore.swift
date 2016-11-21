@@ -13,6 +13,8 @@ class DataStore {
     
     static let sharedInstance = DataStore()
     
+    var messages = [Message]()
+    
     private init() {}
     
     // MARK: - Core Data stack
@@ -60,4 +62,80 @@ class DataStore {
         }
     }
     
+    func fetchData() {
+        let context = persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<Message>(entityName: "Message")
+        
+        do {
+            messages = try context.fetch(fetchRequest)
+            let sortedArr = try messages.sorted(by: { (messageA, messageB) -> Bool in
+                var messageA = messageA.createdAt as! Date
+                var messageB = messageB.createdAt as! Date
+                
+        
+            return messageA.compare(messageB) == ComparisonResult.orderedAscending
+            
+            })
+            
+            if messages.count == 0 {
+                createTestData()
+            }
+                print(sortedArr)
+            
+            }
+        catch {}
+    }
+   
+    func descending () {
+        messages.sort { (messageA, messageB) -> Bool in
+            var messageA = messageA.createdAt as! Date
+            var messageB = messageB.createdAt as! Date
+            
+            
+            return messageA.compare(messageB) == ComparisonResult.orderedDescending
+            
+
+        }
+    }
+    
+    func ascending () {
+        messages.sort { (messageA, messageB) -> Bool in
+            var messageA = messageA.createdAt as! Date
+            var messageB = messageB.createdAt as! Date
+            
+
+            
+            return messageA.compare(messageB) == ComparisonResult.orderedAscending
+        }
+    }
+    
+    
+    func createTestData () {
+        let context = persistentContainer.viewContext
+        let newEntity = Message(context: context)
+        let newEntity2 = Message(context: context)
+        newEntity.createdAt = Date() as NSDate?
+        newEntity.content = "Hello"
+        newEntity2.createdAt = Date() as NSDate?
+        newEntity2.content = "No"
+        let newEntity3 = Message(context: context)
+        newEntity3.createdAt = Date() as NSDate?
+        newEntity3.content = "Holla"
+        saveContext()
+        fetchData()
+    }
+    
+    func createNewData (message: String) {
+        let context = persistentContainer.viewContext
+        let newData = Message(context: context)
+        newData.content = message
+        newData.createdAt = Date() as NSDate
+        saveContext()
+        fetchData()
+        
+        
+    }
+
+    
+
 }
